@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: medbot-assist
+      - uses: actions/checkout@v4
+        with:
+          repository: mghadia1/medbot-vision
+          path: medbot-vision
+      - uses: actions/checkout@v4
+        with:
+          repository: mghadia1/surgiarm-sim
+          path: surgiarm-sim
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: medbot-assist/pyproject.toml
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ./medbot-vision ./surgiarm-sim './medbot-assist[dev,ml]'
+      - run: python -m pytest -q medbot-assist/tests
