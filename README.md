@@ -1,30 +1,43 @@
 # MedBot Assist
 
-MedBot Assist is the flagship integration project for simulated vision-guided instrument tray handling. The current cross-platform milestone connects MedBot Vision detections to a calibrated tray/robot transform, safety gates, and SurgiArm's collision-aware planar pick-and-place coordinator.
+MedBot Assist is the flagship integration project: simulated vision-guided instrument tray handling that connects [MedBot Vision](https://github.com/mghadia1/medbot-vision) detections through safety gates and calibrated transforms to [SurgiArm](https://github.com/mghadia1/surgiarm-sim)'s collision-aware planar pick-and-place coordinator.
 
-It is not autonomous surgery, clinical software, a medical device, ROS 2, Gazebo, or a hardware robot.
+> **What this is not:** autonomous surgery, clinical software, a medical device, ROS 2, Gazebo, or a hardware robot. All scenes, labels, and metrics are generated-data evidence.
+
+![Annotated detector output on the generated tray scene that feeds the learned-classifier demo](docs/hero.png)
+
+## Quickstart
+
+```bash
+# medbot-assist installs its two sibling projects from adjacent clones
+git clone https://github.com/mghadia1/medbot-vision.git
+git clone https://github.com/mghadia1/surgiarm-sim.git
+git clone https://github.com/mghadia1/medbot-assist.git
+cd medbot-assist
+python3 -m venv .venv && source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install '.[dev,ml]'
+python -m pip install ../medbot-vision ../surgiarm-sim
+
+# run the tests (8)
+python -m pytest -q
+
+# run the end-to-end demo (scene -> detection -> gates -> transform -> pick/place)
+medbot-assist demo --output outputs/demo --tool scalpel --seed 7
+```
+
+## Headline result (generated data only)
+
+With the learned four-class CNN (trained on separately generated tool crops), **all 80 detected components across 20 randomized full-scene trials were classified correctly**. Eleven requested tasks passed every safety gate and completed end to end; **nine were safely rejected** because confidence fell below the 0.80 gate — the threshold was deliberately not lowered to inflate the success count. Full numbers, the oracle-labeled comparison, and the domain-shift analysis: [docs/results.md](docs/results.md).
 
 ## Honest class-label boundary
 
 MedBot Vision finds geometry but does not classify instrument types. MedBot Assist supports two explicit label sources: simulator-ground-truth oracle labels for debugging, and a four-class CNN trained on separately generated tool crops. The learned classes are still synthetic; they are not evidence of recognition in real surgical images.
 
-## Setup
+## More commands
 
 ```bash
-cd "/Users/programming/Documents/auto job applier/projects/medbot-assist"
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install '.[dev,ml]'
-python -m pip install ../medbot-vision ../surgiarm-sim
-```
-
-## Run
-
-```bash
-medbot-assist demo --output outputs/demo --tool scalpel --seed 7
 medbot-assist evaluate --output outputs/evaluation --trials 20 --seed 101
-python -m pytest -q
 ```
 
 The demo writes the source scene, detector annotation, ground truth, detection messages, assist result, and a robot-state GIF. Evaluation varies instrument locations and angles and preserves one row per trial.
