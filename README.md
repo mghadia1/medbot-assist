@@ -80,3 +80,16 @@ The measured demonstration, trial results, and safe-rejection analysis are recor
 ## Future full flagship
 
 The project still requires real-image multi-class perception, physical calibration error measurement, ROS 2, TF2, Gazebo, MoveIt, ros2_control, physics, hardware-independent verification, and repeated supported-Linux end-to-end trials. None are current implementation claims.
+
+## Container
+
+This image needs the three sibling project directories because it integrates MedBot Vision and SurgiArm. Build it from their common parent directory. It deliberately installs CPU-only PyTorch.
+
+```bash
+cd "/Users/programming/Documents/auto job applier/projects"
+docker build -f medbot-assist/Dockerfile -t medbot-assist .
+docker run --rm medbot-assist \
+  demo --output /tmp/container-demo --tool scalpel --seed 7
+```
+
+The full oracle-label perception-to-planning demo completed successfully in this container on July 21, 2026. Generated oracle labels and 2D simulation remain explicit limitations.
